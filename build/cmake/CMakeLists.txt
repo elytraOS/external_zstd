@@ -82,18 +82,25 @@ message(STATUS "CMAKE_INSTALL_LIBDIR: ${CMAKE_INSTALL_LIBDIR}")
 #-----------------------------------------------------------------------------
 
 # Legacy support
-option(ZSTD_LEGACY_SUPPORT "LEGACY SUPPORT" OFF)
+option(ZSTD_LEGACY_SUPPORT "LEGACY SUPPORT" ON)
 
 if (ZSTD_LEGACY_SUPPORT)
     message(STATUS "ZSTD_LEGACY_SUPPORT defined!")
-    add_definitions(-DZSTD_LEGACY_SUPPORT=5)
+    set(ZSTD_LEGACY_LEVEL 5 CACHE STRING "")
+    add_definitions(-DZSTD_LEGACY_SUPPORT=${ZSTD_LEGACY_LEVEL})
 else ()
     message(STATUS "ZSTD_LEGACY_SUPPORT not defined!")
     add_definitions(-DZSTD_LEGACY_SUPPORT=0)
 endif ()
 
+if (ANDROID)
+    set(ZSTD_MULTITHREAD_SUPPORT_DEFAULT OFF)
+else()
+    set(ZSTD_MULTITHREAD_SUPPORT_DEFAULT ON)
+endif()
+
 # Multi-threading support
-option(ZSTD_MULTITHREAD_SUPPORT "MULTITHREADING SUPPORT" ON)
+option(ZSTD_MULTITHREAD_SUPPORT "MULTITHREADING SUPPORT" ${ZSTD_MULTITHREAD_SUPPORT_DEFAULT})
 
 if (ZSTD_MULTITHREAD_SUPPORT)
     message(STATUS "ZSTD_MULTITHREAD_SUPPORT is enabled")

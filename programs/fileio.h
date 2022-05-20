@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, Yann Collet, Facebook, Inc.
+ * Copyright (c) Yann Collet, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
@@ -13,6 +13,7 @@
 #define FILEIO_H_23981798732
 
 #define ZSTD_STATIC_LINKING_ONLY   /* ZSTD_compressionParameters */
+#include "fileio_types.h"
 #include "../lib/zstd.h"           /* ZSTD_* */
 
 #if defined (__cplusplus)
@@ -53,10 +54,6 @@ extern "C" {
 /*-*************************************
 *  Types
 ***************************************/
-typedef enum { FIO_zstdCompression, FIO_gzipCompression, FIO_xzCompression, FIO_lzmaCompression, FIO_lz4Compression } FIO_compressionType_t;
-
-typedef struct FIO_prefs_s FIO_prefs_t;
-
 FIO_prefs_t* FIO_createPreferences(void);
 void FIO_freePreferences(FIO_prefs_t* const prefs);
 
@@ -66,7 +63,6 @@ typedef struct FIO_ctx_s FIO_ctx_t;
 FIO_ctx_t* FIO_createContext(void);
 void FIO_freeContext(FIO_ctx_t* const fCtx);
 
-typedef struct FIO_display_prefs_s FIO_display_prefs_t;
 
 /*-*************************************
 *  Parameters
@@ -77,6 +73,7 @@ void FIO_overwriteMode(FIO_prefs_t* const prefs);
 void FIO_setAdaptiveMode(FIO_prefs_t* const prefs, unsigned adapt);
 void FIO_setAdaptMin(FIO_prefs_t* const prefs, int minCLevel);
 void FIO_setAdaptMax(FIO_prefs_t* const prefs, int maxCLevel);
+void FIO_setUseRowMatchFinder(FIO_prefs_t* const prefs, int useRowMatchFinder);
 void FIO_setBlockSize(FIO_prefs_t* const prefs, int blockSize);
 void FIO_setChecksumFlag(FIO_prefs_t* const prefs, int checksumFlag);
 void FIO_setDictIDFlag(FIO_prefs_t* const prefs, int dictIDFlag);
@@ -97,13 +94,16 @@ void FIO_setSrcSizeHint(FIO_prefs_t* const prefs, size_t srcSizeHint);
 void FIO_setTestMode(FIO_prefs_t* const prefs, int testMode);
 void FIO_setLiteralCompressionMode(
         FIO_prefs_t* const prefs,
-        ZSTD_literalCompressionMode_e mode);
+        ZSTD_paramSwitch_e mode);
 
-void FIO_setNoProgress(unsigned noProgress);
+void FIO_setProgressSetting(FIO_progressSetting_e progressSetting);
 void FIO_setNotificationLevel(int level);
 void FIO_setExcludeCompressedFile(FIO_prefs_t* const prefs, int excludeCompressedFiles);
+void FIO_setAllowBlockDevices(FIO_prefs_t* const prefs, int allowBlockDevices);
 void FIO_setPatchFromMode(FIO_prefs_t* const prefs, int value);
 void FIO_setContentSize(FIO_prefs_t* const prefs, int value);
+void FIO_displayCompressionParameters(const FIO_prefs_t* prefs);
+void FIO_setAsyncIOFlag(FIO_prefs_t* const prefs, unsigned value);
 
 /* FIO_ctx_t functions */
 void FIO_setNbFilesTotal(FIO_ctx_t* const fCtx, int value);
@@ -166,6 +166,9 @@ int FIO_checkFilenameCollisions(const char** filenameTable, unsigned nbFiles);
 /* custom crash signal handler */
 void FIO_addAbortHandler(void);
 
+char const* FIO_zlibVersion(void);
+char const* FIO_lz4Version(void);
+char const* FIO_lzmaVersion(void);
 
 
 #if defined (__cplusplus)

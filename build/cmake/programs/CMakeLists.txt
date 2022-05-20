@@ -7,7 +7,7 @@
 # in the COPYING file in the root directory of this source tree).
 # ################################################################
 
-project(programs)
+project(programs C)
 
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
@@ -32,12 +32,14 @@ if (MSVC)
     set(PlatformDependResources ${MSVC_RESOURCE_DIR}/zstd.rc)
 endif ()
 
-add_executable(zstd ${PROGRAMS_DIR}/zstdcli.c ${PROGRAMS_DIR}/util.c ${PROGRAMS_DIR}/timefn.c ${PROGRAMS_DIR}/fileio.c ${PROGRAMS_DIR}/benchfn.c ${PROGRAMS_DIR}/benchzstd.c ${PROGRAMS_DIR}/datagen.c ${PROGRAMS_DIR}/dibio.c ${PlatformDependResources})
+add_executable(zstd ${PROGRAMS_DIR}/zstdcli.c ${PROGRAMS_DIR}/util.c ${PROGRAMS_DIR}/timefn.c ${PROGRAMS_DIR}/fileio.c ${PROGRAMS_DIR}/fileio_asyncio.c ${PROGRAMS_DIR}/benchfn.c ${PROGRAMS_DIR}/benchzstd.c ${PROGRAMS_DIR}/datagen.c ${PROGRAMS_DIR}/dibio.c ${PROGRAMS_DIR}/zstdcli_trace.c ${PlatformDependResources})
 target_link_libraries(zstd ${PROGRAMS_ZSTD_LINK_TARGET})
 if (CMAKE_SYSTEM_NAME MATCHES "(Solaris|SunOS)")
     target_link_libraries(zstd rt)
 endif ()
-install(TARGETS zstd RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+install(TARGETS zstd
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+  BUNDLE DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
 if (UNIX)
     add_custom_target(zstdcat ALL ${CMAKE_COMMAND} -E create_symlink zstd zstdcat DEPENDS zstd COMMENT "Creating zstdcat symlink")
@@ -73,9 +75,9 @@ if (UNIX)
         ${CMAKE_CURRENT_BINARY_DIR}/zstdless.1
         DESTINATION "${MAN_INSTALL_DIR}")
 
-    add_executable(zstd-frugal ${PROGRAMS_DIR}/zstdcli.c ${PROGRAMS_DIR}/util.c ${PROGRAMS_DIR}/timefn.c ${PROGRAMS_DIR}/fileio.c)
+    add_executable(zstd-frugal ${PROGRAMS_DIR}/zstdcli.c ${PROGRAMS_DIR}/util.c ${PROGRAMS_DIR}/timefn.c ${PROGRAMS_DIR}/fileio.c ${PROGRAMS_DIR}/fileio_asyncio.c)
     target_link_libraries(zstd-frugal ${PROGRAMS_ZSTD_LINK_TARGET})
-    set_property(TARGET zstd-frugal APPEND PROPERTY COMPILE_DEFINITIONS "ZSTD_NOBENCH;ZSTD_NODICT")
+    set_property(TARGET zstd-frugal APPEND PROPERTY COMPILE_DEFINITIONS "ZSTD_NOBENCH;ZSTD_NODICT;ZSTD_NOTRACE")
 endif ()
 
 # Add multi-threading support definitions
