@@ -93,7 +93,7 @@ typedef enum { bt_raw, bt_rle, bt_compressed, bt_reserved } blockType_e;
 #define ZSTD_FRAMECHECKSUMSIZE 4
 
 #define MIN_SEQUENCES_SIZE 1 /* nbSeq==0 */
-#define MIN_CBLOCK_SIZE (1 /*litCSize*/ + 1 /* RLE or RAW */ + MIN_SEQUENCES_SIZE /* nbSeq==0 */)   /* for a non-null block */
+#define MIN_CBLOCK_SIZE (1 /*litCSize*/ + 1 /* RLE or RAW */)   /* for a non-null block */
 
 typedef enum { set_basic, set_rle, set_compressed, set_repeat } symbolEncodingType_e;
 
@@ -235,12 +235,6 @@ void ZSTD_wildcopy(void* dst, const void* src, ptrdiff_t length, ZSTD_overlap_e 
          * one COPY16() in the first call. Then, do two calls per loop since
          * at that point it is more likely to have a high trip count.
          */
-#ifdef __aarch64__
-        do {
-            COPY16(op, ip);
-        }
-        while (op < oend);
-#else
         ZSTD_copy16(op, ip);
         if (16 >= length) return;
         op += 16;
@@ -250,7 +244,6 @@ void ZSTD_wildcopy(void* dst, const void* src, ptrdiff_t length, ZSTD_overlap_e 
             COPY16(op, ip);
         }
         while (op < oend);
-#endif
     }
 }
 
